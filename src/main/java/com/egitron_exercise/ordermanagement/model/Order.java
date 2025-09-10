@@ -1,11 +1,11 @@
 package com.egitron_exercise.ordermanagement.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "orders") // no conflict with Order
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -13,17 +13,19 @@ public class Order {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private LocalDateTime createdAt;
     private BigDecimal value;
+
     private String validation;
 
-    // getters and setters
+    private LocalDateTime createdAt;
+
+    // getters e setters
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
 
@@ -33,12 +35,12 @@ public class Order {
     public OrderStatus getStatus() { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
     public BigDecimal getValue() { return value; }
     public void setValue(BigDecimal value) { this.value = value; }
 
     public String getValidation() { return validation; }
     public void setValidation(String validation) { this.validation = validation; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -2,11 +2,21 @@ server:
   port: 8080
 
 spring:
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  datasource:
+    url: jdbc:sqlserver://127.0.0.1:1433;databaseName=order_management;encrypt=false;trustServerCertificate=true
+    username: soliz
+    password: springboot_egitron
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
-  security:
-    user:
-      name: admin
-      password: admin123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+    show-sql: true
+
+  #security:
+   # user:
+      #name: admin
+      #password: admin123
