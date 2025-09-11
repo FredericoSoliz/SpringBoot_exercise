@@ -6,7 +6,6 @@ public class OrderRequestDTO {
     private Long clientId;
     private BigDecimal value;
     private String status;
-    private String validation;
 
     // getters and setters
     public Long getClientId() { return clientId; }
@@ -18,6 +17,4 @@ public class OrderRequestDTO {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getValidation() { return validation; }
-    public void setValidation(String validation) { this.validation = validation; }
 }
