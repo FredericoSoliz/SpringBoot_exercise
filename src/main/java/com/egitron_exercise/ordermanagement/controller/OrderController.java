@@ -89,5 +89,40 @@ public class OrderController {
                 savedOrder.getClient().getEmail()
         );
     }
+
+    @GetMapping("/search")
+    public List<OrderResponseDTO> searchOrders(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String date // format: YYYY-MM-DD
+    ) {
+        List<Order> results;
+
+        if (status != null && date != null) {
+            LocalDateTime start = LocalDateTime.parse(date + "T00:00:00");
+            LocalDateTime end = LocalDateTime.parse(date + "T23:59:59");
+            results = orderRepository.findByStatusAndCreatedAtBetween(
+                    OrderStatus.valueOf(status.toUpperCase()), start, end);
+        } else if (status != null) {
+            results = orderRepository.findByStatus(OrderStatus.valueOf(status.toUpperCase()));
+        } else if (date != null) {
+            LocalDateTime start = LocalDateTime.parse(date + "T00:00:00");
+            LocalDateTime end = LocalDateTime.parse(date + "T23:59:59");
+            results = orderRepository.findByCreatedAtBetween(start, end);
+        } else {
+            results = orderRepository.findAll();
+        }
+
+        return results.stream()
+                .map(order -> new OrderResponseDTO(
+                        order.getOrderId(),
+                        order.getStatus().name(),
+                        order.getValue(),
+                        order.getCreatedAt(),
+                        order.getClient().getName(),
+                        order.getClient().getEmail()
+                ))
+                .toList();
+    }
+
 }
 
