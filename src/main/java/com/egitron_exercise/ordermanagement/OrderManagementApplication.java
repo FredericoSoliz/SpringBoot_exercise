@@ -9,7 +9,11 @@ import org.springframework.web.client.RestTemplate;
         "com.egitron_exercise.ordermanagement.controller",
         "com.egitron_exercise.ordermanagement.repository",
         "com.egitron_exercise.ordermanagement.model",
-        "com.egitron_exercise.ordermanagement.external"
+        "com.egitron_exercise.ordermanagement.external",
+        "com.egitron_exercise.ordermanagement.config",
+        "com.egitron_exercise.ordermanagement.dto",
+        "com.egitron_exercise.ordermanagement.jwt",
+        "com.egitron_exercise.ordermanagement.service"
 })
 public class OrderManagementApplication {
 
