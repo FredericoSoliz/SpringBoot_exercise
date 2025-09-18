@@ -1,34 +1,22 @@
 package com.egitron_exercise.ordermanagement.external.validation;
 
-import com.egitron_exercise.ordermanagement.model.Client;
-import com.egitron_exercise.ordermanagement.repository.ClientRepository;
+import com.egitron_exercise.ordermanagement.service.ExternalValidationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/external")
 public class ExternalValidationController {
 
-    private final ClientRepository clientRepository;
+    private final ExternalValidationService externalValidationService;
 
-    public ExternalValidationController(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
+    public ExternalValidationController(ExternalValidationService externalValidationService) {
+        this.externalValidationService = externalValidationService;
     }
 
     @PostMapping("/validate")
-    public ValidationResponseDTO validateClient(@RequestBody ValidationRequestDTO request) {
-        // Verifica duplicado de nome
-        Client existingByName = clientRepository.findByName(request.getName());
-        if (existingByName != null && !existingByName.getClientId().equals(request.getClientId())) {
-            return new ValidationResponseDTO("INVALID", "Name already in use");
-        }
-
-        // Verifica duplicado de email
-        Client existingByEmail = clientRepository.findByEmail(request.getEmail());
-        if (existingByEmail != null && !existingByEmail.getClientId().equals(request.getClientId())) {
-            return new ValidationResponseDTO("INVALID", "Email already in use");
-        }
-
-        return new ValidationResponseDTO("VALID", "Client is valid");
+    public ValidationResponseDTO validateClient(@RequestBody ValidationRequestDTO request, double orderValue) {
+        return validateClient(request, 0.0); // default orderValue = 0
     }
 }
+
 

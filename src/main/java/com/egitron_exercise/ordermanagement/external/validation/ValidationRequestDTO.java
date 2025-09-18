@@ -5,7 +5,6 @@ public class ValidationRequestDTO {
     private String name;
     private String email;
 
-    // getters and setters
     public Long getClientId() { return clientId; }
     public void setClientId(Long clientId) { this.clientId = clientId; }
 

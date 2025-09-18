@@ -9,11 +9,14 @@ import com.egitron_exercise.ordermanagement.model.Order;
 import com.egitron_exercise.ordermanagement.model.OrderStatus;
 import com.egitron_exercise.ordermanagement.repository.ClientRepository;
 import com.egitron_exercise.ordermanagement.repository.OrderRepository;
+import com.egitron_exercise.ordermanagement.service.ExternalValidationService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,12 +26,14 @@ public class OrderController {
 
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
-    private final RestTemplate restTemplate;
+    private final ExternalValidationService  externalValidationService;
 
-    public OrderController(OrderRepository orderRepository, ClientRepository clientRepository, RestTemplate restTemplate) {
+    public OrderController(OrderRepository orderRepository,
+                           ClientRepository clientRepository,
+                           ExternalValidationService externalValidationService) {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
-        this.restTemplate = restTemplate;
+        this.externalValidationService = externalValidationService;
     }
 
     // GET /orders -> returns list of DTOs
@@ -41,42 +46,46 @@ public class OrderController {
                         order.getValue(),
                         order.getCreatedAt(),
                         order.getClient().getName(),
-                        order.getClient().getEmail()
+                        order.getClient().getEmail(),
+                        order.isValidation()
+
                 ))
                 .toList();
     }
 
     // POST /orders -> receive and returns DTO
     @PostMapping
-    public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO orderRequest) {
-        Client client = clientRepository.findById(orderRequest.getClientId())
-                .orElseThrow(() -> new RuntimeException("Client not found with id " + orderRequest.getClientId()));
+    public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO orderRequest, Principal principal) {
 
-        // Chamada à API externa
+        Client client = clientRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Client not found"));
+
+        // mock call to external validation
         ValidationRequestDTO validationRequest = new ValidationRequestDTO();
         validationRequest.setClientId(client.getClientId());
         validationRequest.setName(client.getName());
         validationRequest.setEmail(client.getEmail());
 
-        ValidationResponseDTO validationResponse = restTemplate.postForObject(
-                "http://localhost:8080/external/validate",
+        ValidationResponseDTO validationResponse = externalValidationService.validateClient(
                 validationRequest,
-                ValidationResponseDTO.class
+                orderRequest.getValue().doubleValue()
         );
 
+        // doesn't create order if invalid
         if (validationResponse == null || !"VALID".equals(validationResponse.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    validationResponse != null ? validationResponse.getReason() : "Validation failed"
+                    validationResponse != null ? validationResponse.getReason() : "Erro na validação externa"
             );
         }
 
-        // only create order if validation is ok
+        // create order
         Order order = new Order();
         order.setClient(client);
         order.setStatus(OrderStatus.valueOf(orderRequest.getStatus().toUpperCase()));
         order.setValue(orderRequest.getValue());
         order.setCreatedAt(LocalDateTime.now());
+        order.setValidation(true);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -86,43 +95,13 @@ public class OrderController {
                 savedOrder.getValue(),
                 savedOrder.getCreatedAt(),
                 savedOrder.getClient().getName(),
-                savedOrder.getClient().getEmail()
+                savedOrder.getClient().getEmail(),
+                savedOrder.isValidation()
         );
     }
 
-    @GetMapping("/search")
-    public List<OrderResponseDTO> searchOrders(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String date // format: YYYY-MM-DD
-    ) {
-        List<Order> results;
 
-        if (status != null && date != null) {
-            LocalDateTime start = LocalDateTime.parse(date + "T00:00:00");
-            LocalDateTime end = LocalDateTime.parse(date + "T23:59:59");
-            results = orderRepository.findByStatusAndCreatedAtBetween(
-                    OrderStatus.valueOf(status.toUpperCase()), start, end);
-        } else if (status != null) {
-            results = orderRepository.findByStatus(OrderStatus.valueOf(status.toUpperCase()));
-        } else if (date != null) {
-            LocalDateTime start = LocalDateTime.parse(date + "T00:00:00");
-            LocalDateTime end = LocalDateTime.parse(date + "T23:59:59");
-            results = orderRepository.findByCreatedAtBetween(start, end);
-        } else {
-            results = orderRepository.findAll();
-        }
 
-        return results.stream()
-                .map(order -> new OrderResponseDTO(
-                        order.getOrderId(),
-                        order.getStatus().name(),
-                        order.getValue(),
-                        order.getCreatedAt(),
-                        order.getClient().getName(),
-                        order.getClient().getEmail()
-                ))
-                .toList();
-    }
 
 }
 

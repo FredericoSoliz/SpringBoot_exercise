@@ -9,7 +9,6 @@ public class ValidationResponseDTO {
         this.reason = reason;
     }
 
-    // getters
     public String getStatus() { return status; }
     public String getReason() { return reason; }
 }

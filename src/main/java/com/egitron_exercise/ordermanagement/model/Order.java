@@ -21,11 +21,10 @@ public class Order {
 
     private BigDecimal value;
 
-    private String validation;
+    private boolean validation;
 
     private LocalDateTime createdAt;
 
-    // getters e setters
     public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
 
@@ -38,8 +37,8 @@ public class Order {
     public BigDecimal getValue() { return value; }
     public void setValue(BigDecimal value) { this.value = value; }
 
-    public String getValidation() { return validation; }
-    public void setValidation(String validation) { this.validation = validation; }
+    public boolean isValidation() { return validation; }
+    public void setValidation(boolean validation) { this.validation = validation; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

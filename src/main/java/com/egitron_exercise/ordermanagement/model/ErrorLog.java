@@ -16,7 +16,6 @@ public class ErrorLog {
     @Column(length = 2000) // stacktrace size
     private String stacktrace;
 
-    // getters and setters
     public Long getErrorId() { return errorId; }
     public void setErrorId(Long errorId) { this.errorId = errorId; }
 

@@ -12,9 +12,9 @@ public class Client {
 
     private String name;
     private String email;
+    private String password;
     private LocalDateTime createdAt;
 
-    // getters and setteres
     public Long getClientId() { return clientId; }
     public void setClientId(Long clientId) { this.clientId = clientId; }
 
@@ -26,4 +26,7 @@ public class Client {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }

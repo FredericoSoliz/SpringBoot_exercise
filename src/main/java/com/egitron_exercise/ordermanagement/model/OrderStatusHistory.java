@@ -19,7 +19,6 @@ public class OrderStatusHistory {
 
     private LocalDateTime changedAt;
 
-    // getters and setters
     public Long getOrderStatusHistoryId() { return orderStatusHistoryId; }
     public void setOrderStatusHistoryId(Long orderStatusHistoryId) { this.orderStatusHistoryId = orderStatusHistoryId; }
 

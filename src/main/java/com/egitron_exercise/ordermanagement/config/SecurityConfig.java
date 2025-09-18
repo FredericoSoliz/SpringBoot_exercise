@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,28 +27,41 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/clients").hasRole("USER")
+                        // public
+                        .requestMatchers("/api/auth/**", "/external/**").permitAll()
+
+                        // protected with ROLE_USER
                         .requestMatchers(HttpMethod.GET, "/clients").hasRole("USER")
-                        .requestMatchers("/orders/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/clients").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/orders").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/orders").hasRole("USER")
+
+                        // all the rest
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-
         return http.build();
     }
+
+
+
+
 
     @Bean
     public UserDetailsService userDetailsService() {
         return new InMemoryUserDetailsManager(
                 User.withUsername("user")
-                        .password("{noop}password")
+                        .password("{noop}password") // {noop} = without encryption (dev only)
                         .roles("USER")
                         .build()
         );
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -54,4 +69,3 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 }
-
