@@ -33,15 +33,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/external/**").permitAll()
 
                         // protected with ROLE_USER
-                        .requestMatchers(HttpMethod.GET, "/clients").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/clients").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/orders").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/orders").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/clients/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/clients/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/orders/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/orders/**").hasRole("USER")
 
                         // all the rest
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

@@ -11,9 +11,7 @@ import com.egitron_exercise.ordermanagement.repository.ClientRepository;
 import com.egitron_exercise.ordermanagement.repository.OrderRepository;
 import com.egitron_exercise.ordermanagement.service.ExternalValidationService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
@@ -34,23 +32,6 @@ public class OrderController {
         this.orderRepository = orderRepository;
         this.clientRepository = clientRepository;
         this.externalValidationService = externalValidationService;
-    }
-
-    // GET /orders -> returns list of DTOs
-    @GetMapping
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(order -> new OrderResponseDTO(
-                        order.getOrderId(),
-                        order.getStatus().name(),
-                        order.getValue(),
-                        order.getCreatedAt(),
-                        order.getClient().getName(),
-                        order.getClient().getEmail(),
-                        order.isValidation()
-
-                ))
-                .toList();
     }
 
     // POST /orders -> receive and returns DTO
@@ -75,7 +56,7 @@ public class OrderController {
         if (validationResponse == null || !"VALID".equals(validationResponse.getStatus())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    validationResponse != null ? validationResponse.getReason() : "Erro na validação externa"
+                    validationResponse != null ? validationResponse.getReason() : "Error in external validation"
             );
         }
 
@@ -99,6 +80,57 @@ public class OrderController {
                 savedOrder.isValidation()
         );
     }
+
+    // GET /orders?status=...&startDate=...&endDate=...
+    @GetMapping
+    public List<OrderResponseDTO> getOrders(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        List<Order> orders;
+
+        if (status != null) {
+            orders = orderRepository.findByStatus(OrderStatus.valueOf(status.toUpperCase()));
+        } else if (startDate != null && endDate != null) {
+            orders = orderRepository.findByCreatedAtBetween(
+                    LocalDateTime.parse(startDate + "T00:00:00"),
+                    LocalDateTime.parse(endDate + "T23:59:59")
+            );
+        } else {
+            orders = orderRepository.findAll();
+        }
+
+        return orders.stream()
+                .map(order -> new OrderResponseDTO(
+                        order.getOrderId(),
+                        order.getStatus().name(),
+                        order.getValue(),
+                        order.getCreatedAt(),
+                        order.getClient().getName(),
+                        order.getClient().getEmail(),
+                        order.isValidation()
+                ))
+                .toList();
+    }
+
+    // GET /orders/{id}
+    @GetMapping("/{id}")
+    public OrderResponseDTO getOrderById(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+
+        return new OrderResponseDTO(
+                order.getOrderId(),
+                order.getStatus().name(),
+                order.getValue(),
+                order.getCreatedAt(),
+                order.getClient().getName(),
+                order.getClient().getEmail(),
+                order.isValidation()
+        );
+    }
+
 
 
 

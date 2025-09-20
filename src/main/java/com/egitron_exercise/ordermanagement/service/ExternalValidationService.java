@@ -10,9 +10,15 @@ import org.springframework.stereotype.Service;
 public class ExternalValidationService {
 
     private final ClientRepository clientRepository;
+    private final ErrorLogService errorLogService;
+    private final EmailService emailService;
 
-    public ExternalValidationService(ClientRepository clientRepository) {
+    public ExternalValidationService(ClientRepository clientRepository,
+                                     ErrorLogService errorLogService,
+                                     EmailService emailService) {
         this.clientRepository = clientRepository;
+        this.errorLogService = errorLogService;
+        this.emailService = emailService;
     }
 
     public ValidationResponseDTO validateClient(ValidationRequestDTO request, double orderValue) {
@@ -22,21 +28,31 @@ public class ExternalValidationService {
 
         // if value < 0 → INVALID
         if (orderValue < 0) {
-            System.out.println(">>> [ValidationService] INVALID - Negative value not allowed");
+            String msg = "INVALID - Negative value not allowed";
+            System.out.println(">>> [ValidationService] " + msg);
+            errorLogService.logError(msg);
+            emailService.sendErrorToUser(request.getEmail(), msg);
             return new ValidationResponseDTO("INVALID", "Order value cannot be negative");
         }
 
         // verifies duplicate by name
         Client existingByName = clientRepository.findByName(request.getName());
         if (existingByName != null && !existingByName.getClientId().equals(request.getClientId())) {
-            System.out.println(">>> [ValidationService] INVALID - Name already in use");
+            String msg = "INVALID - Name already in use";
+            System.out.println(">>> [ValidationService] " + msg);
+            errorLogService.logError(msg);
+            emailService.sendErrorToUser(request.getEmail(), msg);
             return new ValidationResponseDTO("INVALID", "Name already in use");
         }
 
         // verifies duplicate by email
         clientRepository.findByEmail(request.getEmail()).ifPresent(existing -> {
             if (!existing.getClientId().equals(request.getClientId())) {
-                throw new RuntimeException("INVALID: Email already in use");
+                String msg = "INVALID: Email already in use";
+                System.out.println(">>> [ValidationService] " + msg);
+                errorLogService.logError(msg);
+                emailService.sendErrorToUser(request.getEmail(), msg);
+                throw new RuntimeException(msg);
             }
         });
 
@@ -44,6 +60,8 @@ public class ExternalValidationService {
         return new ValidationResponseDTO("VALID", "Client is valid");
     }
 }
+
+
 
 
 

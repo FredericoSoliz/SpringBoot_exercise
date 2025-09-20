@@ -13,8 +13,6 @@ public class ErrorLog {
     private LocalDateTime timestamp;
     private String message;
 
-    @Column(length = 2000) // stacktrace size
-    private String stacktrace;
 
     public Long getErrorId() { return errorId; }
     public void setErrorId(Long errorId) { this.errorId = errorId; }
@@ -25,6 +23,4 @@ public class ErrorLog {
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 
-    public String getStacktrace() { return stacktrace; }
-    public void setStacktrace(String stacktrace) { this.stacktrace = stacktrace; }
 }
