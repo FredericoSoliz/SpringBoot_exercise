@@ -32,11 +32,14 @@ public class SecurityConfig {
                         // public
                         .requestMatchers("/api/auth/**", "/external/**").permitAll()
 
-                        // protected with ROLE_USER
-                        .requestMatchers(HttpMethod.GET, "/clients/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/clients/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/orders/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/orders/**").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.POST, "/orders").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/orders").hasAnyRole("CLIENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/clients/**").hasRole("ADMIN") // only admin can list clients
+
+                        .requestMatchers(HttpMethod.PATCH, "/orders/*/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orders/*/history").hasRole("ADMIN")
+
 
                         // all the rest
                         .anyRequest().authenticated()
@@ -45,10 +48,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
-
-
 
     @Bean
     public UserDetailsService userDetailsService() {

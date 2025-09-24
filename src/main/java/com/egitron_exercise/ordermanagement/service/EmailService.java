@@ -46,4 +46,13 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendOrderUpdateEmail(String to, String message) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(to);
+        mailMessage.setSubject("Order Status Update");
+        mailMessage.setText(message);
+        mailSender.send(mailMessage);
+    }
+
+
 }

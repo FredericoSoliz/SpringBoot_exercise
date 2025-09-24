@@ -17,10 +17,6 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    public Client createClient(Client client) {
-        return clientRepository.save(client);
-    }
-
     public List<Client> findAll() {
         return clientRepository.findAll();
     }

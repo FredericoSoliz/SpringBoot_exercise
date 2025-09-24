@@ -20,10 +20,12 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final EmailService  emailService;
 
-    public OrderService(OrderRepository orderRepository, OrderStatusHistoryRepository orderStatusHistoryRepository) {
+    public OrderService(OrderRepository orderRepository, OrderStatusHistoryRepository orderStatusHistoryRepository,  EmailService emailService) {
         this.orderRepository = orderRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.emailService = emailService;
     }
 
     public Order createOrder(OrderRequestDTO orderRequest, Client client) {
@@ -54,7 +56,7 @@ public class OrderService {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Invalid status. Use only APROVADO, PENDENTE or REJEITADO."
+                    "Invalid status. Use APROVADO, PENDENTE or REJEITADO."
             );
         }
 
@@ -68,11 +70,15 @@ public class OrderService {
         history.setOrder(updatedOrder);
         history.setStatus(status);
         history.setChangedAt(LocalDateTime.now());
-
         orderStatusHistoryRepository.save(history);
+
+        // send email to client
+        String msg = "Your order #" + updatedOrder.getOrderId() + " status has been updated to: " + status.name();
+        emailService.sendOrderUpdateEmail(order.getClient().getEmail(), msg);
 
         return updatedOrder;
     }
+
 
     public List<OrderStatusHistoryDTO> getOrderHistory(Long orderId) {
         Order order = orderRepository.findById(orderId)

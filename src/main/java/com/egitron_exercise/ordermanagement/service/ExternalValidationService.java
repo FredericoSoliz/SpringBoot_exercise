@@ -3,7 +3,6 @@ package com.egitron_exercise.ordermanagement.service;
 import com.egitron_exercise.ordermanagement.external.validation.ValidationRequestDTO;
 import com.egitron_exercise.ordermanagement.external.validation.ValidationResponseDTO;
 import com.egitron_exercise.ordermanagement.model.Client;
-import com.egitron_exercise.ordermanagement.model.OrderStatus;
 import com.egitron_exercise.ordermanagement.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 

@@ -25,13 +25,13 @@ spring:
       mail-to: fredericosoliz@gmail.com
 
 
-jpa:
-  hibernate:
-    ddl-auto: update
-  properties:
+  jpa:
     hibernate:
-      dialect: org.hibernate.dialect.SQLServerDialect
-  show-sql: true
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+    show-sql: true
 
 logging:
   level:

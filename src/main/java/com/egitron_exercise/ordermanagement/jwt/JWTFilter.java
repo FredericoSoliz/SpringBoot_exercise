@@ -28,7 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ignore public endpoints
+        // public endpoints
         if (path.startsWith("/api/auth/") || path.startsWith("/external/")) {
             chain.doFilter(request, response);
             return;
@@ -39,12 +39,13 @@ public class JWTFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             try {
                 String username = jwtService.validateToken(token);
+                String role = jwtService.getRole(token); // get role from token
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER")) // ROLE_USER force
+                                List.of(new SimpleGrantedAuthority("ROLE_" + role)) // ROLE_CLIENT / ROLE_ADMIN
                         );
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
@@ -58,8 +59,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
-
     }
 }
-
 

@@ -29,6 +29,6 @@ public class AuthService {
         }
 
         Client client = clientOpt.get();
-        return jwtService.generateToken(client.getEmail());
+        return jwtService.generateToken(client.getEmail(), client.getRole().name());
     }
 }

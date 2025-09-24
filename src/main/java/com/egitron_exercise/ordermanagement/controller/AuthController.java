@@ -4,6 +4,7 @@ import com.egitron_exercise.ordermanagement.dto.ClientRequestDTO;
 import com.egitron_exercise.ordermanagement.dto.auth.AuthRequestDTO;
 import com.egitron_exercise.ordermanagement.dto.auth.AuthResponseDTO;
 import com.egitron_exercise.ordermanagement.model.Client;
+import com.egitron_exercise.ordermanagement.model.Role;
 import com.egitron_exercise.ordermanagement.repository.ClientRepository;
 import com.egitron_exercise.ordermanagement.service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class AuthController {
         client.setName(request.getName());
         client.setEmail(request.getEmail());
         client.setPassword(passwordEncoder.encode(request.getPassword()));
+        client.setRole(Role.CLIENT);
         client.setCreatedAt(LocalDateTime.now());
 
         clientRepository.save(client);

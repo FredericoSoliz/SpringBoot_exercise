@@ -13,6 +13,10 @@ public class Client {
     private String name;
     private String email;
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     private LocalDateTime createdAt;
 
     public Long getClientId() { return clientId; }
@@ -23,6 +27,9 @@ public class Client {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public Role getRole() {return role;}
+    public void setRole(Role role) {this.role = role;}
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
