@@ -1,5 +1,7 @@
 package com.egitron_exercise.ordermanagement.dto;
 
+import com.egitron_exercise.ordermanagement.model.OrderStatus;
+
 import java.math.BigDecimal;
 
 public class OrderRequestDTO {

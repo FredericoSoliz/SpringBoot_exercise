@@ -3,6 +3,7 @@ package com.egitron_exercise.ordermanagement.service;
 import com.egitron_exercise.ordermanagement.external.validation.ValidationRequestDTO;
 import com.egitron_exercise.ordermanagement.external.validation.ValidationResponseDTO;
 import com.egitron_exercise.ordermanagement.model.Client;
+import com.egitron_exercise.ordermanagement.model.OrderStatus;
 import com.egitron_exercise.ordermanagement.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class ExternalValidationService {
     public ValidationResponseDTO validateClient(ValidationRequestDTO request, double orderValue) {
         System.out.println(">>> [ValidationService] Validating clientId=" + request.getClientId()
                 + ", name=" + request.getName() + ", email=" + request.getEmail()
-                + ", orderValue=" + orderValue);
+                + ", orderValue=" + orderValue + ", status=" + request.getStatus());
 
         // if value < 0 → INVALID
         if (orderValue < 0) {
@@ -34,6 +35,17 @@ public class ExternalValidationService {
             emailService.sendErrorToUser(request.getEmail(), msg);
             return new ValidationResponseDTO("INVALID", "Order value cannot be negative");
         }
+
+        // check status
+        String status = request.getStatus();
+        if (!"APROVADO".equalsIgnoreCase(status) && !"PENDENTE".equalsIgnoreCase(status) && !"REJEITADO".equalsIgnoreCase(status)) {
+
+            String msg = "INVALID - Status - Cant be " + status + ". Use only APROVADO, PENDENTE, REJEITADO.";
+            errorLogService.logError(msg);
+            emailService.sendErrorToUser(request.getEmail(), msg);
+            return new ValidationResponseDTO("INVALID", msg);
+        }
+
 
         // verifies duplicate by name
         Client existingByName = clientRepository.findByName(request.getName());
@@ -60,6 +72,7 @@ public class ExternalValidationService {
         return new ValidationResponseDTO("VALID", "Client is valid");
     }
 }
+
 
 
 
