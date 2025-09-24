@@ -36,17 +36,6 @@ public class ExternalValidationService {
             return new ValidationResponseDTO("INVALID", "Order value cannot be negative");
         }
 
-        // check status
-        String status = request.getStatus();
-        if (!"APROVADO".equalsIgnoreCase(status) && !"PENDENTE".equalsIgnoreCase(status) && !"REJEITADO".equalsIgnoreCase(status)) {
-
-            String msg = "INVALID - Status - Cant be " + status + ". Use only APROVADO, PENDENTE, REJEITADO.";
-            errorLogService.logError(msg);
-            emailService.sendErrorToUser(request.getEmail(), msg);
-            return new ValidationResponseDTO("INVALID", msg);
-        }
-
-
         // verifies duplicate by name
         Client existingByName = clientRepository.findByName(request.getName());
         if (existingByName != null && !existingByName.getClientId().equals(request.getClientId())) {
