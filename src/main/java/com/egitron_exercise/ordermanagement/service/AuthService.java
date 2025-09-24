@@ -3,9 +3,6 @@ package com.egitron_exercise.ordermanagement.service;
 import com.egitron_exercise.ordermanagement.jwt.JWTService;
 import com.egitron_exercise.ordermanagement.model.Client;
 import com.egitron_exercise.ordermanagement.repository.ClientRepository;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
